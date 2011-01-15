@@ -4,8 +4,8 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.io.File;
 import java.io.IOException;
-import java.text.ParseException;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
@@ -14,20 +14,22 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JTabbedPane;
 import javax.swing.KeyStroke;
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.xml.sax.SAXException;
 
 import com.ttime.logic.Constraint;
 import com.ttime.logic.Faculty;
 import com.ttime.logic.Schedule;
 import com.ttime.logic.Scheduler;
 import com.ttime.parse.UDonkey;
-import java.io.File;
-import javax.swing.JFileChooser;
 
 public class MainWindow extends JFrame {
     SchedulePanel schedulePanel = new SchedulePanel();
@@ -67,9 +69,11 @@ public class MainWindow extends JFrame {
                     try {
                         UDonkey donkey = new UDonkey(file);
                         setFaculties(donkey.getFaculties());
-                    } catch (IOException ex) {
+                    } catch (ParserConfigurationException ex) {
                         Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
-                    } catch (ParseException ex) {
+                    } catch (SAXException ex) {
+                        Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
+                    } catch (IOException ex) {
                         Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }
