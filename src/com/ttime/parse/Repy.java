@@ -20,7 +20,7 @@ import com.ttime.logic.Faculty;
 import com.ttime.logic.Group;
 import com.ttime.logic.Group.Type;
 
-public class Repy {
+public class Repy implements Parser {
 
     public final static File DEFAULT_PATH = new File(new File(new File(System.getProperty("user.home"), ".ttime"), "data"), "REPY");
 
@@ -91,6 +91,7 @@ public class Repy {
     String current_line;
     Set<Faculty> faculties;
 
+    @Override
     public Set<Faculty> getFaculties() {
         return faculties;
     }

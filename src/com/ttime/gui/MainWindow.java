@@ -4,10 +4,14 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.io.IOException;
+import java.text.ParseException;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -21,6 +25,9 @@ import com.ttime.logic.Constraint;
 import com.ttime.logic.Faculty;
 import com.ttime.logic.Schedule;
 import com.ttime.logic.Scheduler;
+import com.ttime.parse.UDonkey;
+import java.io.File;
+import javax.swing.JFileChooser;
 
 public class MainWindow extends JFrame {
 
@@ -48,7 +55,31 @@ public class MainWindow extends JFrame {
             }
         });
 
+        JMenuItem importUdonkey = new JMenuItem("Import UDonkey XML...");
+        importUdonkey.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JFileChooser xmlFileChooser = new JFileChooser();
+                int returnVal = xmlFileChooser.showOpenDialog(MainWindow.this);
+
+                if (returnVal == JFileChooser.APPROVE_OPTION) {
+                    File file = xmlFileChooser.getSelectedFile();
+
+                    try {
+                        UDonkey donkey = new UDonkey(file);
+                        setFaculties(donkey.getFaculties());
+                    } catch (IOException ex) {
+                        Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
+                    } catch (ParseException ex) {
+                        Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            }
+        });
+
         file.add(quit);
+        file.add(importUdonkey);
 
         menuBar.add(file);
 
