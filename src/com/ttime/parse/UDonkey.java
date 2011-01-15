@@ -4,16 +4,13 @@
  */
 package com.ttime.parse;
 
-import com.ttime.logic.Faculty;
 import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.Set;
 
-/**
- *
- * @author amit
- */
+import com.ttime.logic.Faculty;
+
 public class UDonkey implements Parser {
 
     public UDonkey(File file) throws IOException, ParseException {

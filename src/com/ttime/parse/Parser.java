@@ -4,13 +4,10 @@
  */
 package com.ttime.parse;
 
-import com.ttime.logic.Faculty;
 import java.util.Set;
 
-/**
- *
- * @author amit
- */
+import com.ttime.logic.Faculty;
+
 public interface Parser {
 
     Set<Faculty> getFaculties();
