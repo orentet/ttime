@@ -11,9 +11,13 @@ public class Faculty implements Comparable<Faculty> {
         return courses;
     }
 
-    public Faculty(String name) {
+    public Faculty(String name, Set<Course> courses) {
         this.name = name;
-        this.courses = new HashSet<Course>();
+        this.courses = courses;
+    }
+
+    public Faculty(String name) {
+        this(name, new HashSet<Course>());
     }
 
     public String getName() {

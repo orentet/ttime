@@ -10,9 +10,8 @@ import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
+import javax.management.modelmbean.XMLParseException;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -70,11 +69,17 @@ public class MainWindow extends JFrame {
                         UDonkey donkey = new UDonkey(file);
                         setFaculties(donkey.getFaculties());
                     } catch (ParserConfigurationException ex) {
-                        Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
+                        // TODO Auto-generated catch block
+                        ex.printStackTrace();
                     } catch (SAXException ex) {
-                        Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
+                        // TODO Auto-generated catch block
+                        ex.printStackTrace();
                     } catch (IOException ex) {
-                        Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
+                        // TODO Auto-generated catch block
+                        ex.printStackTrace();
+                    } catch (XMLParseException ex) {
+                        // TODO Auto-generated catch block
+                        ex.printStackTrace();
                     }
                 }
             }
