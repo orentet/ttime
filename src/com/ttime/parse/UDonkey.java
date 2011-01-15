@@ -40,7 +40,6 @@ public class UDonkey implements Parser {
         HashSet<Faculty> faculties = new HashSet<Faculty>();
         if (facultyNodes != null) {
             for (int i = 0; i < facultyNodes.getLength(); i++) {
-                // get the employee element
                 Element el = (Element) facultyNodes.item(i);
 
             }

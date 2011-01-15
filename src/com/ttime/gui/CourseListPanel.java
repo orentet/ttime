@@ -32,12 +32,9 @@ import com.ttime.logic.Faculty;
 
 public class CourseListPanel extends JSplitPane {
     JEditorPane courseInfo = new JEditorPane();
-
     DefaultMutableTreeNode availableCoursesRoot = new DefaultMutableTreeNode(
             "Available Courses");
-    DefaultTreeModel availableCoursesModel = new DefaultTreeModel(
-            availableCoursesRoot);
-    JTree availableCoursesTree = new JTree(availableCoursesModel);
+    JTree availableCoursesTree = new JTree();
 
     DefaultListModel selectedCoursesModel = new DefaultListModel();
     JList selectedCoursesList = new JList(selectedCoursesModel);
@@ -169,6 +166,9 @@ public class CourseListPanel extends JSplitPane {
     }
 
     void populateFaculties() {
+        DefaultTreeModel availableCoursesModel = new DefaultTreeModel(
+                availableCoursesRoot);
+
         for (Faculty faculty : new TreeSet<Faculty>(faculties)) {
             DefaultMutableTreeNode facultyNode = new DefaultMutableTreeNode(
                     faculty);
@@ -184,6 +184,7 @@ public class CourseListPanel extends JSplitPane {
             }
         }
 
+        availableCoursesTree.setModel(availableCoursesModel);
         availableCoursesTree.expandPath(new TreePath(availableCoursesRoot
                 .getPath()));
     }
