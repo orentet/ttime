@@ -26,209 +26,209 @@ import javax.swing.JComponent;
 import com.ttime.logic.Event;
 
 public class ScheduleView extends JComponent {
-    int days;
-    int startTime;
-    int endTime;
+	int days;
+	int endTime;
+	Collection<Event> events = new ArrayList<Event>();
 
-    Graphics2D g;
+	Graphics2D g;
 
-    Collection<Event> events = new ArrayList<Event>();
+	int startTime;
 
-    int getDurationHeight(int seconds) {
-        return seconds * g.getClipBounds().height / (endTime - startTime);
-    }
+	void computeTimeLimits(int earliestStart, int latestFinish) {
+		// We work on an hour-long, offset-by-30-minute grid, so we want to
+		// start and end on the half-hour.
 
-    void setEvents(Collection<Event> events) {
-        this.events.clear();
-        this.events.addAll(events);
-        this.repaint();
-    }
+		startTime = 3600 * (earliestStart / 3600) + 1800;
 
-    void drawEvent(Event e, int numLayers, int layer) {
-        // Always keep in mind one extra "day" for the hours column.
-        // Also, keep in mind that we're drawing on the left of the day column,
-        // which usually means we subtract one more "day". Similarly, we have
-        // one extra "hour" for the days row.
+		if (earliestStart % 3600 < 1800) {
+			startTime -= 3600;
+		}
 
-        // TODO Avoid magic numbers for rounded corners, padding
+		endTime = 3600 * (latestFinish / 3600) + 1800;
 
-        // Create a new graphics context so our clipping doesn't last
-        Graphics2D g = (Graphics2D) this.g.create();
+		if (latestFinish % 3600 > 1800) {
+			// Ends after the half-hour - add one hour
+			endTime += 3600;
+		}
+	}
 
-        float width = (g.getClipBounds().width / (days + 1) / numLayers);
-        float daysX = days - e.getDay() - 1;
-        float dayWidth = g.getClipBounds().width / (days + 1);
+	void drawEvent(Event e, int numLayers, int layer) {
+		// Always keep in mind one extra "day" for the hours column.
+		// Also, keep in mind that we're drawing on the left of the day column,
+		// which usually means we subtract one more "day". Similarly, we have
+		// one extra "hour" for the days row.
 
-        float x = daysX * dayWidth + width * (numLayers - layer - 1);
+		// TODO Avoid magic numbers for rounded corners, padding
 
-        float y = getDurationHeight(e.getStartTime() - startTime + 3600);
+		// Create a new graphics context so our clipping doesn't last
+		Graphics2D g = (Graphics2D) this.g.create();
 
-        float height = getDurationHeight(e.getEndTime() - e.getStartTime());
+		float width = (g.getClipBounds().width / (days + 1) / numLayers);
+		float daysX = days - e.getDay() - 1;
+		float dayWidth = g.getClipBounds().width / (days + 1);
 
-        g.setStroke(new BasicStroke(2.0f));
+		float x = daysX * dayWidth + width * (numLayers - layer - 1);
 
-        g.setPaint(new GradientPaint(x, y, new Color(0xffcccc), x + width, y
-                + height, new Color(0xffffff)));
+		float y = getDurationHeight(e.getStartTime() - startTime + 3600);
 
-        RectangularShape r = new RoundRectangle2D.Double(x, y, width, height,
-                15, 15);
+		float height = getDurationHeight(e.getEndTime() - e.getStartTime());
 
-        g.fill(r);
-        g.setColor(Color.BLACK);
-        g.draw(r);
+		g.setStroke(new BasicStroke(2.0f));
 
-        g.setClip(r);
-        FontRenderContext frc = g.getFontRenderContext();
+		g.setPaint(new GradientPaint(x, y, new Color(0xffcccc), x + width, y
+				+ height, new Color(0xffffff)));
 
-        y += 5;
+		RectangularShape r = new RoundRectangle2D.Double(x, y, width, height,
+				15, 15);
 
-        AttributedString attributedTitle = new AttributedString(e.getCourse()
-                .toString());
-        attributedTitle.addAttribute(TextAttribute.WEIGHT,
-                TextAttribute.WEIGHT_BOLD);
-        LineBreakMeasurer lbmTitle = new LineBreakMeasurer(attributedTitle
-                .getIterator(), frc);
+		g.fill(r);
+		g.setColor(Color.BLACK);
+		g.draw(r);
 
-        while (lbmTitle.getPosition() < attributedTitle.getIterator()
-                .getEndIndex()) {
-            TextLayout tl = lbmTitle.nextLayout(width - 10);
-            tl.draw(g, x + width - tl.getAdvance() - 5, y + tl.getAscent());
-            y += tl.getAscent();
-        }
+		g.setClip(r);
+		FontRenderContext frc = g.getFontRenderContext();
 
-        if (e.getPlace() != null) {
-            AttributedString attributedPlace = new AttributedString(e
-                    .getPlace());
-            attributedTitle.addAttribute(TextAttribute.POSTURE,
-                    TextAttribute.POSTURE_OBLIQUE);
-            LineBreakMeasurer lbmPlace = new LineBreakMeasurer(attributedPlace
-                    .getIterator(), frc);
+		y += 5;
 
-            while (lbmPlace.getPosition() < attributedPlace.getIterator()
-                    .getEndIndex()) {
-                TextLayout tl = lbmPlace.nextLayout(width - 10);
-                tl.draw(g, x + width - tl.getAdvance() - 5, y + tl.getAscent());
-                y += tl.getAscent();
-            }
-        }
-    }
+		AttributedString attributedTitle = new AttributedString(e.getCourse()
+				.toString());
+		attributedTitle.addAttribute(TextAttribute.WEIGHT,
+				TextAttribute.WEIGHT_BOLD);
+		LineBreakMeasurer lbmTitle = new LineBreakMeasurer(attributedTitle
+				.getIterator(), frc);
 
-    void computeTimeLimits(int earliestStart, int latestFinish) {
-        // We work on an hour-long, offset-by-30-minute grid, so we want to
-        // start and end on the half-hour.
+		while (lbmTitle.getPosition() < attributedTitle.getIterator()
+				.getEndIndex()) {
+			TextLayout tl = lbmTitle.nextLayout(width - 10);
+			tl.draw(g, x + width - tl.getAdvance() - 5, y + tl.getAscent());
+			y += tl.getAscent();
+		}
 
-        startTime = 3600 * (earliestStart / 3600) + 1800;
+		if (e.getPlace() != null) {
+			AttributedString attributedPlace = new AttributedString(e
+					.getPlace());
+			attributedTitle.addAttribute(TextAttribute.POSTURE,
+					TextAttribute.POSTURE_OBLIQUE);
+			LineBreakMeasurer lbmPlace = new LineBreakMeasurer(attributedPlace
+					.getIterator(), frc);
 
-        if (earliestStart % 3600 < 1800) {
-            startTime -= 3600;
-        }
+			while (lbmPlace.getPosition() < attributedPlace.getIterator()
+					.getEndIndex()) {
+				TextLayout tl = lbmPlace.nextLayout(width - 10);
+				tl.draw(g, x + width - tl.getAdvance() - 5, y + tl.getAscent());
+				y += tl.getAscent();
+			}
+		}
+	}
 
-        endTime = 3600 * (latestFinish / 3600) + 1800;
+	synchronized private void drawEvents() {
+		// Credit: Basic algorithm by Boaz Goldstein
 
-        if (latestFinish % 3600 > 1800) {
-            // Ends after the half-hour - add one hour
-            endTime += 3600;
-        }
-    }
+		LinkedList<Event> remainingEvents = new LinkedList<Event>(events);
+		Collections.sort(remainingEvents);
 
-    @Override
-    synchronized protected void paintComponent(Graphics g1) {
-        this.g = (Graphics2D) g1;
-        days = 5; // TODO this should be based on the events we actually get,
-        computeTimeLimits(8 * 3600, 18 * 3600);
-        // but a minimum of 5
+		while (!remainingEvents.isEmpty()) {
+			LinkedList<Event> collidingEvents = new LinkedList<Event>();
 
-        g.setFont(new Font("Dialog", Font.BOLD, 40));
+			collidingEvents.add(remainingEvents.getFirst());
+			remainingEvents.removeFirst();
 
-        Rectangle bounds = g.getClipBounds();
+			int collisionDay = collidingEvents.getFirst().getDay();
+			int collisionEndTime = collidingEvents.getFirst().getEndTime();
 
-        RenderingHints rh = new RenderingHints(RenderingHints.KEY_ANTIALIASING,
-                RenderingHints.VALUE_ANTIALIAS_ON);
+			// Expand the collidingEvents set with all colliding events. Since
+			// remainingEvents is sorted by startTime, we only need to check
+			// equality of the day and that endTime falls within our collision
+			// block.
+			while (!remainingEvents.isEmpty()
+					&& (remainingEvents.getFirst().getDay() == collisionDay)
+					&& (remainingEvents.getFirst().getStartTime() < collisionEndTime)) {
+				Event newCollider = remainingEvents.getFirst();
+				collisionEndTime = Math.max(collisionEndTime, newCollider
+						.getEndTime());
+				collidingEvents.add(newCollider);
+				remainingEvents.removeFirst();
+			}
 
-        g.setRenderingHints(rh);
+			// collidingEvents need to be split into layers. We do this
+			// greedily.
 
-        g.setStroke(new BasicStroke(1.0f));
+			LinkedList<LinkedList<Event>> layers = new LinkedList<LinkedList<Event>>();
 
-        for (int i = 0; i < (endTime - startTime) / 3600; i++) {
-            int y = getDurationHeight(3600 * i);
-            g.drawLine(0, y, (int) bounds.getWidth(), y);
-        }
+			// collidingEvents is sorted, as it is a prefix of the sorted
+			// remainingEvents.
+			// We will create each layer by taking the first event in
+			// collidingEvents,
+			// all events which don't collide with it (they start later, we only
+			// need
+			// to check that they start after it ends), and removing all of
+			// those events.
 
-        drawEvents();
-    }
+			while (!collidingEvents.isEmpty()) {
+				LinkedList<Event> layer = new LinkedList<Event>();
 
-    synchronized private void drawEvents() {
-        // Credit: Basic algorithm by Boaz Goldstein
+				layer.add(collidingEvents.getFirst());
+				int layerEnd = layer.getFirst().getEndTime();
+				collidingEvents.removeFirst();
 
-        LinkedList<Event> remainingEvents = new LinkedList<Event>(events);
-        Collections.sort(remainingEvents);
+				ListIterator<Event> it = collidingEvents.listIterator();
 
-        while (!remainingEvents.isEmpty()) {
-            LinkedList<Event> collidingEvents = new LinkedList<Event>();
+				while (it.hasNext()) {
+					Event e = it.next();
+					if (e.getStartTime() >= layerEnd) {
+						// e does not collide.
+						it.remove();
+						layer.add(e);
+						layerEnd = e.getEndTime();
+					}
+				}
 
-            collidingEvents.add(remainingEvents.getFirst());
-            remainingEvents.removeFirst();
+				layers.add(layer);
+			}
 
-            int collisionDay = collidingEvents.getFirst().getDay();
-            int collisionEndTime = collidingEvents.getFirst().getEndTime();
+			int i = 0;
+			for (LinkedList<Event> layer : layers) {
+				for (Event e : layer) {
+					drawEvent(e, layers.size(), i);
+				}
+				i += 1;
+			}
+		}
+	}
 
-            // Expand the collidingEvents set with all colliding events. Since
-            // remainingEvents is sorted by startTime, we only need to check
-            // equality of the day and that endTime falls within our collision
-            // block.
-            while (!remainingEvents.isEmpty()
-                    && remainingEvents.getFirst().getDay() == collisionDay
-                    && remainingEvents.getFirst().getStartTime() < collisionEndTime) {
-                Event newCollider = remainingEvents.getFirst();
-                collisionEndTime = Math.max(collisionEndTime, newCollider
-                        .getEndTime());
-                collidingEvents.add(newCollider);
-                remainingEvents.removeFirst();
-            }
+	int getDurationHeight(int seconds) {
+		return seconds * g.getClipBounds().height / (endTime - startTime);
+	}
 
-            // collidingEvents need to be split into layers. We do this
-            // greedily.
+	@Override
+	synchronized protected void paintComponent(Graphics g1) {
+		this.g = (Graphics2D) g1;
+		days = 5; // TODO this should be based on the events we actually get,
+		computeTimeLimits(8 * 3600, 18 * 3600);
+		// but a minimum of 5
 
-            LinkedList<LinkedList<Event>> layers = new LinkedList<LinkedList<Event>>();
+		g.setFont(new Font("Dialog", Font.BOLD, 40));
 
-            // collidingEvents is sorted, as it is a prefix of the sorted
-            // remainingEvents.
-            // We will create each layer by taking the first event in
-            // collidingEvents,
-            // all events which don't collide with it (they start later, we only
-            // need
-            // to check that they start after it ends), and removing all of
-            // those events.
+		Rectangle bounds = g.getClipBounds();
 
-            while (!collidingEvents.isEmpty()) {
-                LinkedList<Event> layer = new LinkedList<Event>();
+		RenderingHints rh = new RenderingHints(RenderingHints.KEY_ANTIALIASING,
+				RenderingHints.VALUE_ANTIALIAS_ON);
 
-                layer.add(collidingEvents.getFirst());
-                int layerEnd = layer.getFirst().getEndTime();
-                collidingEvents.removeFirst();
+		g.setRenderingHints(rh);
 
-                ListIterator<Event> it = collidingEvents.listIterator();
+		g.setStroke(new BasicStroke(1.0f));
 
-                while (it.hasNext()) {
-                    Event e = it.next();
-                    if (e.getStartTime() >= layerEnd) {
-                        // e does not collide.
-                        it.remove();
-                        layer.add(e);
-                        layerEnd = e.getEndTime();
-                    }
-                }
+		for (int i = 0; i < (endTime - startTime) / 3600; i++) {
+			int y = getDurationHeight(3600 * i);
+			g.drawLine(0, y, (int) bounds.getWidth(), y);
+		}
 
-                layers.add(layer);
-            }
+		drawEvents();
+	}
 
-            int i = 0;
-            for (LinkedList<Event> layer : layers) {
-                for (Event e : layer) {
-                    drawEvent(e, layers.size(), i);
-                }
-                i += 1;
-            }
-        }
-    }
+	void setEvents(Collection<Event> events) {
+		this.events.clear();
+		this.events.addAll(events);
+		this.repaint();
+	}
 }

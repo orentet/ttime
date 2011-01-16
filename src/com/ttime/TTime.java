@@ -13,60 +13,60 @@ import com.ttime.parse.Repy;
 
 public class TTime {
 
-    private static Set<Faculty> faculties;
+	private static Set<Faculty> faculties;
 
-    public static int seconds(String time) {
-        int result = 0;
-        String[] split = time.split(":");
-        assert (split.length == 3 || split.length == 2);
-        result += new Integer(split[0]) * 3600;
-        result += new Integer(split[1]) * 60;
-        if (split.length == 3) {
-            result += new Integer(split[2]);
-        }
+	/**
+	 * @param args
+	 */
+	public static void main(String[] args) {
+		Logger log = Logger.getLogger("global").getParent();
+		log.getHandlers()[0].setLevel(Level.ALL);
+		log.setLevel(Level.INFO);
 
-        return result;
-    }
+		try {
+			Repy.DEFAULT_PATH.getParentFile().mkdirs();
+			Update.downloadRepy();
+			Repy r = new Repy(Repy.DEFAULT_PATH);
+			faculties = r.getFaculties();
 
-    /**
-     * @param args
-     */
-    public static void main(String[] args) {
-        Logger log = Logger.getLogger("global").getParent();
-        log.getHandlers()[0].setLevel(Level.ALL);
-        log.setLevel(Level.INFO);
+			try {
+				// UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 
-        try {
-            Repy.DEFAULT_PATH.getParentFile().mkdirs();
-            Update.downloadRepy();
-            Repy r = new Repy(Repy.DEFAULT_PATH);
-            faculties = r.getFaculties();
+			javax.swing.SwingUtilities.invokeLater(new Runnable() {
+				@Override
+				public void run() {
+					MainWindow mw = new MainWindow();
+					mw.setFaculties(faculties);
+				}
+			});
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			System.err.printf("Parse error in REPY line %d: %s\n", e
+					.getErrorOffset(), e.getMessage());
+			e.printStackTrace();
+		}
+	}
 
-            try {
-                // UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-            } catch (Exception e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
+	public static int seconds(String time) {
+		int result = 0;
+		String[] split = time.split(":");
+		assert ((split.length == 3) || (split.length == 2));
+		result += new Integer(split[0]) * 3600;
+		result += new Integer(split[1]) * 60;
+		if (split.length == 3) {
+			result += new Integer(split[2]);
+		}
 
-            javax.swing.SwingUtilities.invokeLater(new Runnable() {
-                @Override
-                public void run() {
-                    MainWindow mw = new MainWindow();
-                    mw.setFaculties(faculties);
-                }
-            });
-        } catch (FileNotFoundException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (ParseException e) {
-            // TODO Auto-generated catch block
-            System.err.printf("Parse error in REPY line %d: %s\n", e
-                    .getErrorOffset(), e.getMessage());
-            e.printStackTrace();
-        }
-    }
+		return result;
+	}
 }

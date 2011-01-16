@@ -33,192 +33,191 @@ import com.ttime.logic.Course;
 import com.ttime.logic.Faculty;
 
 public class CourseListPanel extends JSplitPane {
-    JEditorPane courseInfo = new JEditorPane();
-    JTree availableCoursesTree = new JTree();
+	JTree availableCoursesTree = new JTree();
+	JEditorPane courseInfo = new JEditorPane();
+	Set<Faculty> faculties;
+	private final Collection<Course> selectedCourses = new LinkedList<Course>();
+	JList selectedCoursesList;
+	DefaultListModel selectedCoursesModel = new DefaultListModel();
 
-    DefaultListModel selectedCoursesModel = new DefaultListModel();
-    JList selectedCoursesList = new JList(selectedCoursesModel);
+	CourseListPanel() {
+		super(JSplitPane.VERTICAL_SPLIT);
+		selectedCoursesList = new JList(selectedCoursesModel);
+		JPanel topHalf = new JPanel();
+		GroupLayout layout = new GroupLayout(topHalf);
+		topHalf.setLayout(layout);
 
-    Set<Faculty> faculties;
+		JButton btnAdd = new JButton("Add");
+		btnAdd.setMnemonic(KeyEvent.VK_A);
+		JButton btnRemove = new JButton("Remove");
+		btnRemove.setMnemonic(KeyEvent.VK_R);
 
-    private final Collection<Course> selectedCourses = new LinkedList<Course>();
+		btnAdd.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				addCurrentCourse();
+			}
+		});
 
-    CourseListPanel() {
-        super(JSplitPane.VERTICAL_SPLIT);
-        JPanel topHalf = new JPanel();
-        GroupLayout layout = new GroupLayout(topHalf);
-        topHalf.setLayout(layout);
+		btnRemove.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				removeCurrentCourse();
+			}
+		});
 
-        JButton btnAdd = new JButton("Add");
-        btnAdd.setMnemonic(KeyEvent.VK_A);
-        JButton btnRemove = new JButton("Remove");
-        btnRemove.setMnemonic(KeyEvent.VK_R);
+		courseInfo.setContentType("text/html");
+		courseInfo
+				.setText("<h1>Hello, world!</h1><p>How's about some courses?</p>");
+		courseInfo.setEditable(false);
 
-        btnAdd.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                addCurrentCourse();
-            }
-        });
+		courseInfo.setPreferredSize(new Dimension(50, 50));
 
-        btnRemove.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                removeCurrentCourse();
-            }
-        });
+		JPanel availableCoursesPanel = new JPanel(new BorderLayout());
+		availableCoursesPanel.setBorder(BorderFactory
+				.createTitledBorder("Available courses"));
+		availableCoursesPanel.add(new JScrollPane(availableCoursesTree),
+				BorderLayout.CENTER);
 
-        courseInfo.setContentType("text/html");
-        courseInfo
-                .setText("<h1>Hello, world!</h1><p>How's about some courses?</p>");
-        courseInfo.setEditable(false);
+		JPanel selectedCoursesPanel = new JPanel(new BorderLayout());
+		selectedCoursesPanel.setBorder(BorderFactory
+				.createTitledBorder("Selected courses"));
+		selectedCoursesPanel.add(new JScrollPane(selectedCoursesList),
+				BorderLayout.CENTER);
 
-        courseInfo.setPreferredSize(new Dimension(50, 50));
+		layout.setHorizontalGroup(layout.createSequentialGroup().addGroup(
+				layout.createParallelGroup()
+						.addComponent(availableCoursesPanel).addComponent(
+								btnAdd, GroupLayout.DEFAULT_SIZE,
+								GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+				.addGroup(
+						layout.createParallelGroup().addComponent(
+								selectedCoursesPanel).addComponent(btnRemove,
+								GroupLayout.DEFAULT_SIZE,
+								GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)));
 
-        JPanel availableCoursesPanel = new JPanel(new BorderLayout());
-        availableCoursesPanel.setBorder(BorderFactory
-                .createTitledBorder("Available courses"));
-        availableCoursesPanel.add(new JScrollPane(availableCoursesTree),
-                BorderLayout.CENTER);
+		layout.setVerticalGroup(layout.createSequentialGroup().addGroup(
+				layout.createParallelGroup()
+						.addComponent(availableCoursesPanel).addComponent(
+								selectedCoursesPanel)
 
-        JPanel selectedCoursesPanel = new JPanel(new BorderLayout());
-        selectedCoursesPanel.setBorder(BorderFactory
-                .createTitledBorder("Selected courses"));
-        selectedCoursesPanel.add(new JScrollPane(selectedCoursesList),
-                BorderLayout.CENTER);
+		).addGroup(
+				layout.createParallelGroup().addComponent(btnAdd).addComponent(
+						btnRemove)));
 
-        layout.setHorizontalGroup(layout.createSequentialGroup().addGroup(
-                layout.createParallelGroup()
-                        .addComponent(availableCoursesPanel).addComponent(
-                                btnAdd, GroupLayout.DEFAULT_SIZE,
-                                GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addGroup(
-                        layout.createParallelGroup().addComponent(
-                                selectedCoursesPanel).addComponent(btnRemove,
-                                GroupLayout.DEFAULT_SIZE,
-                                GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)));
+		this.add(topHalf);
+		this.add(new JScrollPane(courseInfo));
 
-        layout.setVerticalGroup(layout.createSequentialGroup().addGroup(
-                layout.createParallelGroup()
-                        .addComponent(availableCoursesPanel).addComponent(
-                                selectedCoursesPanel)
+		this.setDividerLocation(400);
 
-        ).addGroup(
-                layout.createParallelGroup().addComponent(btnAdd).addComponent(
-                        btnRemove)));
+		availableCoursesTree
+				.addTreeSelectionListener(new TreeSelectionListener() {
+					@Override
+					public void valueChanged(TreeSelectionEvent ev) {
+						onTreeSelect(ev);
+					}
+				});
 
-        this.add(topHalf);
-        this.add(new JScrollPane(courseInfo));
+		availableCoursesTree.addMouseListener(new MouseListener() {
 
-        this.setDividerLocation(400);
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				int selRow = availableCoursesTree.getRowForLocation(e.getX(), e
+						.getY());
+				if ((selRow != -1) && (e.getClickCount() == 2)) {
+					addCurrentCourse();
+				}
+			}
 
-        availableCoursesTree
-                .addTreeSelectionListener(new TreeSelectionListener() {
-                    @Override
-                    public void valueChanged(TreeSelectionEvent ev) {
-                        onTreeSelect(ev);
-                    }
-                });
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				// TODO Auto-generated method stub
+			}
 
-        availableCoursesTree.addMouseListener(new MouseListener() {
+			@Override
+			public void mouseExited(MouseEvent e) {
+				// TODO Auto-generated method stub
+			}
 
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                // TODO Auto-generated method stub
-            }
+			@Override
+			public void mousePressed(MouseEvent e) {
+				// TODO Auto-generated method stub
+			}
 
-            @Override
-            public void mousePressed(MouseEvent e) {
-                // TODO Auto-generated method stub
-            }
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				// TODO Auto-generated method stub
+			}
+		});
+	}
 
-            @Override
-            public void mouseExited(MouseEvent e) {
-                // TODO Auto-generated method stub
-            }
+	void addCurrentCourse() {
+		if (getSelectedAddableCourse() != null) {
+			selectedCoursesModel.addElement(getSelectedAddableCourse());
+			selectedCourses.add(getSelectedAddableCourse());
+		}
+	}
 
-            @Override
-            public void mouseEntered(MouseEvent e) {
-                // TODO Auto-generated method stub
-            }
+	Course getSelectedAddableCourse() {
+		try {
+			DefaultMutableTreeNode node = (DefaultMutableTreeNode) availableCoursesTree
+					.getLastSelectedPathComponent();
+			if (node != null) {
+				return (Course) node.getUserObject();
+			}
+		} catch (ClassCastException e) {
+		}
+		return null;
+	}
 
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                int selRow = availableCoursesTree.getRowForLocation(e.getX(), e.getY());
-                if(selRow != -1 && e.getClickCount() == 2) {
-                    addCurrentCourse();
-                }
-            }
-        });
-    }
+	Collection<Course> getSelectedCourses() {
+		return selectedCourses;
+	}
 
-    protected void removeCurrentCourse() {
-        if (!selectedCoursesList.isSelectionEmpty()) {
-            Course c = (Course) selectedCoursesList.getSelectedValue();
-            selectedCoursesModel.remove(selectedCoursesList.getSelectedIndex());
-            selectedCourses.remove(c);
-        }
-    }
+	void onTreeSelect(TreeSelectionEvent ev) {
+		if (getSelectedAddableCourse() != null) {
+			courseInfo
+					.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
+			courseInfo.setText(getSelectedAddableCourse().getHtmlInfo());
+		}
+	}
 
-    void addCurrentCourse() {
-        if (getSelectedAddableCourse() != null) {
-            selectedCoursesModel.addElement(getSelectedAddableCourse());
-            selectedCourses.add(getSelectedAddableCourse());
-        }
-    }
+	void populateFaculties() {
+		DefaultMutableTreeNode availableCoursesRoot = new DefaultMutableTreeNode(
+				"Available Courses");
+		DefaultTreeModel availableCoursesModel = new DefaultTreeModel(
+				availableCoursesRoot);
 
-    Collection<Course> getSelectedCourses() {
-        return selectedCourses;
-    }
+		for (Faculty faculty : new TreeSet<Faculty>(faculties)) {
+			DefaultMutableTreeNode facultyNode = new DefaultMutableTreeNode(
+					faculty);
 
-    Course getSelectedAddableCourse() {
-        try {
-            DefaultMutableTreeNode node = (DefaultMutableTreeNode) availableCoursesTree
-                    .getLastSelectedPathComponent();
-            if (node != null) {
-                return (Course) node.getUserObject();
-            }
-        } catch (ClassCastException e) {
-        }
-        return null;
-    }
+			availableCoursesModel.insertNodeInto(facultyNode,
+					availableCoursesRoot, availableCoursesRoot.getChildCount());
 
-    void onTreeSelect(TreeSelectionEvent ev) {
-        if (getSelectedAddableCourse() != null) {
-            courseInfo
-                    .setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
-            courseInfo.setText(getSelectedAddableCourse().getHtmlInfo());
-        }
-    }
+			for (Course course : new TreeSet<Course>(faculty.getCourses())) {
+				DefaultMutableTreeNode courseNode = new DefaultMutableTreeNode(
+						course);
+				availableCoursesModel.insertNodeInto(courseNode, facultyNode,
+						facultyNode.getChildCount());
+			}
+		}
 
-    public void setFaculties(Set<Faculty> faculties) {
-        this.faculties = faculties;
-        populateFaculties();
-    }
+		availableCoursesTree.setModel(availableCoursesModel);
+		availableCoursesTree.expandPath(new TreePath(availableCoursesRoot
+				.getPath()));
+	}
 
-    void populateFaculties() {
-        DefaultMutableTreeNode availableCoursesRoot = new DefaultMutableTreeNode(
-                "Available Courses");
-        DefaultTreeModel availableCoursesModel = new DefaultTreeModel(
-                availableCoursesRoot);
+	protected void removeCurrentCourse() {
+		if (!selectedCoursesList.isSelectionEmpty()) {
+			Course c = (Course) selectedCoursesList.getSelectedValue();
+			selectedCoursesModel.remove(selectedCoursesList.getSelectedIndex());
+			selectedCourses.remove(c);
+		}
+	}
 
-        for (Faculty faculty : new TreeSet<Faculty>(faculties)) {
-            DefaultMutableTreeNode facultyNode = new DefaultMutableTreeNode(
-                    faculty);
-
-            availableCoursesModel.insertNodeInto(facultyNode,
-                    availableCoursesRoot, availableCoursesRoot.getChildCount());
-
-            for (Course course : new TreeSet<Course>(faculty.getCourses())) {
-                DefaultMutableTreeNode courseNode = new DefaultMutableTreeNode(
-                        course);
-                availableCoursesModel.insertNodeInto(courseNode, facultyNode,
-                        facultyNode.getChildCount());
-            }
-        }
-
-        availableCoursesTree.setModel(availableCoursesModel);
-        availableCoursesTree.expandPath(new TreePath(availableCoursesRoot
-                .getPath()));
-    }
+	public void setFaculties(Set<Faculty> faculties) {
+		this.faculties = faculties;
+		populateFaculties();
+	}
 }

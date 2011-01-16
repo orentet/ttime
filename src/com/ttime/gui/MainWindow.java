@@ -3,6 +3,7 @@ package com.ttime.gui;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.IOException;
@@ -31,128 +32,127 @@ import com.ttime.logic.Scheduler;
 import com.ttime.parse.UDonkey;
 
 public class MainWindow extends JFrame {
-    SchedulePanel schedulePanel = new SchedulePanel();
-    CourseListPanel courseListPanel = new CourseListPanel();
+	CourseListPanel courseListPanel = new CourseListPanel();
+	SchedulePanel schedulePanel = new SchedulePanel();
 
-    JMenuBar createMenuBar() {
-        JMenuBar menuBar = new JMenuBar();
+	public MainWindow() {
+		super("TTime");
+		setPreferredSize(new Dimension(800, 600));
 
-        JMenu file;
+		setDefaultCloseOperation(EXIT_ON_CLOSE);
 
-        file = new JMenu("File");
-        file.setMnemonic(KeyEvent.VK_F);
+		getContentPane().add(createTabbedPane());
 
-        JMenuItem quit = new JMenuItem("Quit");
-        quit.setMnemonic(KeyEvent.VK_Q);
-        quit.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q,
-                KeyEvent.CTRL_MASK));
+		setJMenuBar(createMenuBar());
 
-        quit.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent arg0) {
-                System.exit(0);
-            }
-        });
+		pack();
 
-        JMenuItem importUdonkey = new JMenuItem("Import UDonkey XML...");
-        importUdonkey.addActionListener(new ActionListener() {
+		setVisible(true);
+	}
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                JFileChooser xmlFileChooser = new JFileChooser();
-                int returnVal = xmlFileChooser.showOpenDialog(MainWindow.this);
+	JMenuBar createMenuBar() {
+		JMenuBar menuBar = new JMenuBar();
 
-                if (returnVal == JFileChooser.APPROVE_OPTION) {
-                    File file = xmlFileChooser.getSelectedFile();
+		JMenu file;
 
-                    try {
-                        UDonkey donkey = new UDonkey(file);
-                        setFaculties(donkey.getFaculties());
-                    } catch (ParserConfigurationException ex) {
-                        // TODO Auto-generated catch block
-                        ex.printStackTrace();
-                    } catch (SAXException ex) {
-                        // TODO Auto-generated catch block
-                        ex.printStackTrace();
-                    } catch (IOException ex) {
-                        // TODO Auto-generated catch block
-                        ex.printStackTrace();
-                    } catch (XMLParseException ex) {
-                        // TODO Auto-generated catch block
-                        ex.printStackTrace();
-                    }
-                }
-            }
-        });
+		file = new JMenu("File");
+		file.setMnemonic(KeyEvent.VK_F);
 
-        file.add(quit);
-        file.add(importUdonkey);
+		JMenuItem quit = new JMenuItem("Quit");
+		quit.setMnemonic(KeyEvent.VK_Q);
+		quit.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q,
+				InputEvent.CTRL_MASK));
 
-        menuBar.add(file);
+		quit.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				System.exit(0);
+			}
+		});
 
-        JMenu schedules = new JMenu("Schedules");
-        schedules.setMnemonic(KeyEvent.VK_S);
+		JMenuItem importUdonkey = new JMenuItem("Import UDonkey XML...");
+		importUdonkey.addActionListener(new ActionListener() {
 
-        JMenuItem findSchedules = new JMenuItem("Find schedules");
-        findSchedules.setMnemonic(KeyEvent.VK_S);
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JFileChooser xmlFileChooser = new JFileChooser();
+				int returnVal = xmlFileChooser.showOpenDialog(MainWindow.this);
 
-        findSchedules.addActionListener(new ActionListener() {
+				if (returnVal == JFileChooser.APPROVE_OPTION) {
+					File file = xmlFileChooser.getSelectedFile();
 
-            @Override
-            public void actionPerformed(ActionEvent arg0) {
-                // TODO This needs to happen in a separate thread
-                Scheduler scheduler = new Scheduler(courseListPanel.getSelectedCourses(),
-                        // TODO pass appropriate comparators and constraints
-                        new LinkedList<Constraint>(),
-                        new LinkedList<Comparator<Schedule>>()
-                        );
-                List<Schedule> schedules = scheduler.findSchedules();
-                schedulePanel.setSchedules(schedules);
-            }
-        });
+					try {
+						UDonkey donkey = new UDonkey(file);
+						setFaculties(donkey.getFaculties());
+					} catch (ParserConfigurationException ex) {
+						// TODO Auto-generated catch block
+						ex.printStackTrace();
+					} catch (SAXException ex) {
+						// TODO Auto-generated catch block
+						ex.printStackTrace();
+					} catch (IOException ex) {
+						// TODO Auto-generated catch block
+						ex.printStackTrace();
+					} catch (XMLParseException ex) {
+						// TODO Auto-generated catch block
+						ex.printStackTrace();
+					}
+				}
+			}
+		});
 
-        schedules.add(findSchedules);
+		file.add(quit);
+		file.add(importUdonkey);
 
-        menuBar.add(schedules);
+		menuBar.add(file);
 
+		JMenu schedules = new JMenu("Schedules");
+		schedules.setMnemonic(KeyEvent.VK_S);
 
-        return menuBar;
-    }
+		JMenuItem findSchedules = new JMenuItem("Find schedules");
+		findSchedules.setMnemonic(KeyEvent.VK_S);
 
-    JTabbedPane createTabbedPane() {
-        JTabbedPane tabbedPane = new JTabbedPane();
+		findSchedules.addActionListener(new ActionListener() {
 
-        tabbedPane.addTab("Course List", courseListPanel);
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				// TODO This needs to happen in a separate thread
+				Scheduler scheduler = new Scheduler(courseListPanel
+						.getSelectedCourses(),
+						// TODO pass appropriate comparators and constraints
+						new LinkedList<Constraint>(),
+						new LinkedList<Comparator<Schedule>>());
+				List<Schedule> schedules = scheduler.findSchedules();
+				schedulePanel.setSchedules(schedules);
+			}
+		});
 
-        tabbedPane.addTab("Schedule", schedulePanel);
+		schedules.add(findSchedules);
 
-        JButton constraintsTab = new JButton("Constraints");
+		menuBar.add(schedules);
 
-        tabbedPane.addTab("Constraints", constraintsTab);
+		return menuBar;
+	}
 
-        JButton ratingsTab = new JButton("Schedule ratings");
+	JTabbedPane createTabbedPane() {
+		JTabbedPane tabbedPane = new JTabbedPane();
 
-        tabbedPane.addTab("Schedule ratings", ratingsTab);
+		tabbedPane.addTab("Course List", courseListPanel);
 
-        return tabbedPane;
-    }
+		tabbedPane.addTab("Schedule", schedulePanel);
 
-    public MainWindow() {
-        super("TTime");
-        setPreferredSize(new Dimension(800, 600));
+		JButton constraintsTab = new JButton("Constraints");
 
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
+		tabbedPane.addTab("Constraints", constraintsTab);
 
-        getContentPane().add(createTabbedPane());
+		JButton ratingsTab = new JButton("Schedule ratings");
 
-        setJMenuBar(createMenuBar());
+		tabbedPane.addTab("Schedule ratings", ratingsTab);
 
-        pack();
+		return tabbedPane;
+	}
 
-        setVisible(true);
-    }
-
-    public void setFaculties(Set<Faculty> faculties) {
-        courseListPanel.setFaculties(faculties);
-    }
+	public void setFaculties(Set<Faculty> faculties) {
+		courseListPanel.setFaculties(faculties);
+	}
 }

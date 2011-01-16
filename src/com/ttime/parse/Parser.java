@@ -6,5 +6,5 @@ import com.ttime.logic.Faculty;
 
 public interface Parser {
 
-    Set<Faculty> getFaculties();
+	Set<Faculty> getFaculties();
 }
