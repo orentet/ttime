@@ -174,7 +174,8 @@ public class Repy implements Parser {
 
         expect(SportsExpressions.FACULTY_SEPARATOR);
 
-        Faculty f = new Faculty(SportsExpressions.FACULTY_NAME);
+		// TODO add semester for faculty
+		Faculty f = new Faculty(SportsExpressions.FACULTY_NAME, "");
 
         expect(SportsExpressions.COURSE_SEPARATOR);
 
@@ -367,7 +368,8 @@ public class Repy implements Parser {
     Faculty parseFaculty() throws IOException, ParseException {
         Course current_course;
 
-        Faculty faculty = new Faculty(parseFacultyHeader());
+		// TODO add semester for faculty
+		Faculty faculty = new Faculty(parseFacultyHeader(), "");
 
         log.fine(String.format(
                 "Got a faculty, %s, and finished parsing its header.",

@@ -10,150 +10,177 @@ import java.util.Set;
 import com.ttime.logic.Group.Type;
 
 public class Course implements Comparable<Course> {
-    int number;
-    String name;
-    float points;
-    String lecturerInCharge;
+	String firstTestDate; // TODO needs to be represented as date
+	Set<Group> groups = new HashSet<Group>();
+	private HashMap<Type, LinkedList<Group>> groupsByType = null;
+	int labHours;
+	int lectureHours;
+	String lecturerInCharge;
+	String name;
+	int number;
+	float points;
+	int projectHours;
+	String secondTestDate; // TODO needs to be represented as date
+	int tutorialHours;
 
-    Set<Group> groups;
+	public Course(int number, String name, float points) {
+		this.number = number;
+		this.name = name;
+		this.points = points;
+	}
 
-    // TODO These need to be represented as dates
-    String firstTestDate;
-    String secondTestDate;
+	private void addPartialSchedulingOptions(Schedule subSchedule,
+			LinkedList<Schedule> results, List<Group.Type> types) {
+		if (types.isEmpty()) {
+			results.add(subSchedule);
+			return;
+		}
 
-    public Set<Group> getGroups() {
-        return this.groups;
-    }
+		Group.Type currentType = types.get(0);
+		List<Group.Type> remainingTypes = types.subList(1, types.size());
 
-    public String getLecturerInCharge() {
-        return lecturerInCharge;
-    }
+		for (Group g : getGroupsByType(currentType)) {
+			Schedule amendedSchedule = (Schedule) subSchedule.clone();
+			amendedSchedule.addAll(g.getEvents());
+			addPartialSchedulingOptions(amendedSchedule, results,
+					remainingTypes);
+		}
+	}
 
-    public void setLecturerInCharge(String lecturerInCharge) {
-        this.lecturerInCharge = lecturerInCharge;
-    }
+	@Override
+	public int compareTo(Course rhs) {
+		return new Integer(number).compareTo(rhs.getNumber());
+	}
 
-    public String getFirstTestDate() {
-        return firstTestDate;
-    }
+	public String getFirstTestDate() {
+		return firstTestDate;
+	}
 
-    public void setFirstTestDate(String firstTestDate) {
-        this.firstTestDate = firstTestDate;
-    }
+	public Set<Group> getGroups() {
+		return this.groups;
+	}
 
-    public String getSecondTestDate() {
-        return secondTestDate;
-    }
+	private HashMap<Type, LinkedList<Group>> getGroupsByType() {
+		if (groupsByType != null) {
+			return groupsByType;
+		}
 
-    public void setSecondTestDate(String secondTestDate) {
-        this.secondTestDate = secondTestDate;
-    }
+		groupsByType = new HashMap<Group.Type, LinkedList<Group>>();
+		for (Group g : this.groups) {
+			if (!groupsByType.containsKey(g.getType())) {
+				groupsByType.put(g.getType(), new LinkedList<Group>());
+			}
+			groupsByType.get(g.getType()).add(g);
+		}
 
-    public float getPoints() {
-        return points;
-    }
+		return groupsByType;
+	}
 
-    public void setPoints(float points) {
-        this.points = points;
-    }
+	public Collection<Group> getGroupsByType(Group.Type t) {
+		HashSet<Group> result = new HashSet<Group>();
+		for (Group g : groups) {
+			if (g.getType() == t) {
+				result.add(g);
+			}
+		}
+		return result;
+	}
 
-    public Course(int number, String name) {
-        this.number = number;
-        this.name = name;
-        this.groups = new HashSet<Group>();
-    }
+	public String getHtmlInfo() {
+		StringBuilder sb = new StringBuilder();
 
-    public int getNumber() {
-        return this.number;
-    }
+		sb.append(String.format("<h1>[%d] %s</h1>", number, name));
 
-    public String getName() {
-        return this.name;
-    }
+		String[][] items = { { String.valueOf(points), "נקודות אקדמיות" },
+				{ lecturerInCharge, "מרצה אחראי" },
+				{ firstTestDate, "מועד א'" }, { secondTestDate, "מועד ב'" } };
 
-    @Override
-    public String toString() {
-        return String.format("%d %s", this.number, this.name);
-    }
+		for (String[] pair : items) {
+			if (pair[0] != null) {
+				sb
+						.append(String.format("<div><b>%s:</b> %s", pair[1],
+								pair[0]));
+			}
+		}
 
-    @Override
-    public int compareTo(Course rhs) {
-        return new Integer(number).compareTo(rhs.getNumber());
-    }
+		// TODO Add group and event details
 
-    public String getHtmlInfo() {
-        StringBuilder sb = new StringBuilder();
+		return sb.toString();
+	}
 
-        sb.append(String.format("<h1>[%d] %s</h1>", number, name));
+	public int getLabHours() {
+		return labHours;
+	}
 
-        String[][] items = {
-                { String.valueOf(points), "נקודות אקדמיות" },
-                { lecturerInCharge, "מרצה אחראי" },
-                { firstTestDate, "מועד א'" },
-                { secondTestDate, "מועד ב'" }
-        };
+	public int getLectureHours() {
+		return lectureHours;
+	}
 
-        for (String[] pair : items) {
-            if (pair[0] != null) {
-                sb.append(String.format("<div><b>%s:</b> %s", pair[1], pair[0]));
-            }
-        }
+	public String getLecturerInCharge() {
+		return lecturerInCharge;
+	}
 
-        // TODO Add group and event details
+	public String getName() {
+		return this.name;
+	}
 
-        return sb.toString();
-    }
+	public int getNumber() {
+		return this.number;
+	}
 
-    public Collection<Group> getGroupsByType(Group.Type t) {
-        HashSet<Group> result = new HashSet<Group>();
-        for (Group g : groups) {
-            if (g.getType() == t) {
-                result.add(g);
-            }
-        }
-        return result;
-    }
+	public float getPoints() {
+		return points;
+	}
 
-    private HashMap<Type, LinkedList<Group>> groupsByType = null;
+	public int getProjectHours() {
+		return projectHours;
+	}
 
-    private HashMap<Type, LinkedList<Group>> getGroupsByType() {
-        if (groupsByType != null) {
-            return groupsByType;
-        }
+	public List<Schedule> getSchedulingOptions() {
+		LinkedList<Schedule> schedulingOptions = new LinkedList<Schedule>();
+		addPartialSchedulingOptions(new Schedule(), schedulingOptions,
+				new LinkedList<Group.Type>(getGroupsByType().keySet()));
+		return schedulingOptions;
+	}
 
-        groupsByType = new HashMap<Group.Type, LinkedList<Group>>();
-        for (Group g : this.groups) {
-            if (!groupsByType.containsKey(g.getType())) {
-                groupsByType.put(g.getType(), new LinkedList<Group>());
-            }
-            groupsByType.get(g.getType()).add(g);
-        }
+	public String getSecondTestDate() {
+		return secondTestDate;
+	}
 
-        return groupsByType;
-    }
+	public int getTutorialHours() {
+		return tutorialHours;
+	}
 
-    public List<Schedule> getSchedulingOptions() {
-        LinkedList<Schedule> schedulingOptions = new LinkedList<Schedule>();
-        addPartialSchedulingOptions(new Schedule(), schedulingOptions,
-                new LinkedList<Group.Type>(getGroupsByType().keySet()));
-        return schedulingOptions;
-    }
+	public void setFirstTestDate(String firstTestDate) {
+		this.firstTestDate = firstTestDate;
+	}
 
-    private void addPartialSchedulingOptions(Schedule subSchedule,
-            LinkedList<Schedule> results, List<Group.Type> types) {
-        if (types.isEmpty()) {
-            results.add(subSchedule);
-            return;
-        }
+	public void setLabHours(int labHours) {
+		this.labHours = labHours;
+	}
 
-        Group.Type currentType = types.get(0);
-        List<Group.Type> remainingTypes = types.subList(1, types
-                .size());
+	public void setLectureHours(int lectureHours) {
+		this.lectureHours = lectureHours;
+	}
 
-        for (Group g : getGroupsByType(currentType)) {
-            Schedule amendedSchedule = (Schedule) subSchedule.clone();
-            amendedSchedule.addAll(g.getEvents());
-            addPartialSchedulingOptions(amendedSchedule, results, remainingTypes);
-        }
-    }
+	public void setLecturerInCharge(String lecturerInCharge) {
+		this.lecturerInCharge = lecturerInCharge;
+	}
+
+	public void setProjectHours(int projectHours) {
+		this.projectHours = projectHours;
+	}
+
+	public void setSecondTestDate(String secondTestDate) {
+		this.secondTestDate = secondTestDate;
+	}
+
+	public void setTutorialHours(int tutorialHours) {
+		this.tutorialHours = tutorialHours;
+	}
+
+	@Override
+	public String toString() {
+		return String.format("%d %s", this.number, this.name);
+	}
 }

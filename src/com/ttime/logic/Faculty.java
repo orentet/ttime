@@ -4,33 +4,34 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class Faculty implements Comparable<Faculty> {
-    String name;
-    Set<Course> courses;
+	Set<Course> courses = new HashSet<Course>();
+	String name;
+	String semester;
 
-    public Set<Course> getCourses() {
-        return courses;
-    }
+	public Faculty(String name, String semester) {
+		this.name = name;
+		this.semester = semester;
+	}
 
-    public Faculty(String name, Set<Course> courses) {
-        this.name = name;
-        this.courses = courses;
-    }
+	@Override
+	public int compareTo(Faculty o) {
+		return name.compareTo(o.getName());
+	}
 
-    public Faculty(String name) {
-        this(name, new HashSet<Course>());
-    }
+	public Set<Course> getCourses() {
+		return courses;
+	}
 
-    public String getName() {
-        return this.name;
-    }
+	public String getName() {
+		return this.name;
+	}
 
-    @Override
-    public String toString() {
-        return this.name;
-    }
+	public String getSemester() {
+		return semester;
+	}
 
-    @Override
-    public int compareTo(Faculty o) {
-        return name.compareTo(o.getName());
-    }
+	@Override
+	public String toString() {
+		return this.name;
+	}
 }
