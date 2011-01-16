@@ -14,7 +14,7 @@ public class Group {
 	int number;
 	/**
 	 * Title of sports group
-	 *
+	 * 
 	 * This is only really relevant if this.type = Type.SPORTS.
 	 */
 	String title = null;
@@ -25,6 +25,10 @@ public class Group {
 		this.number = number;
 		this.type = type;
 		this.events = new HashSet<Event>();
+	}
+
+	public Course getCourse() {
+		return course;
 	}
 
 	public Set<Event> getEvents() {
@@ -51,9 +55,5 @@ public class Group {
 	public String toString() {
 		return String.format("<Group number=%d type=%s lecturer=%s title=%s>",
 				number, type, lecturer, title);
-	}
-
-	public Course getCourse() {
-		return course;
 	}
 }

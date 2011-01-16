@@ -594,7 +594,7 @@ public class Repy implements Parser {
 	/**
 	 * Places are halfway reversed in REPY: We treat all lines as reversed to
 	 * fix the Hebrew, but then we get reversed numbers.
-	 *
+	 * 
 	 * @param s
 	 *            - A "place" string in the form "PLACE\s+REVERSENUMBER"
 	 * @return "PLACE NUMBER"
