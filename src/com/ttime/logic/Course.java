@@ -10,6 +10,7 @@ import java.util.Set;
 import com.ttime.logic.Group.Type;
 
 public class Course implements Comparable<Course> {
+	Faculty faculty;
 	String firstTestDate; // TODO needs to be represented as date
 	Set<Group> groups = new HashSet<Group>();
 	private HashMap<Type, LinkedList<Group>> groupsByType = null;
@@ -23,7 +24,8 @@ public class Course implements Comparable<Course> {
 	String secondTestDate; // TODO needs to be represented as date
 	int tutorialHours;
 
-	public Course(int number, String name, float points) {
+	public Course(Faculty faculty, int number, String name, float points) {
+		this.faculty = faculty;
 		this.number = number;
 		this.name = name;
 		this.points = points;
@@ -50,6 +52,10 @@ public class Course implements Comparable<Course> {
 	@Override
 	public int compareTo(Course rhs) {
 		return new Integer(number).compareTo(rhs.getNumber());
+	}
+
+	public Faculty getFaculty() {
+		return faculty;
 	}
 
 	public String getFirstTestDate() {

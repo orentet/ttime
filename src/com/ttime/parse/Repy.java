@@ -104,26 +104,6 @@ public class Repy implements Parser {
 	public final static File DEFAULT_PATH = new File(new File(new File(System
 			.getProperty("user.home"), ".ttime"), "data"), "REPY");
 
-	/**
-	 * Reverse a string, dropping leading 0s
-	 * 
-	 * @param s
-	 *            string to reverse
-	 * @return s, reversed.
-	 */
-	static String reverse(String s) {
-		String result = new StringBuffer(s).reverse().toString();
-		int i;
-
-		for (i = 0; i < result.length(); i++) {
-			if (result.charAt(i) != '0') {
-				break;
-			}
-		}
-
-		return result.substring(i);
-	}
-
 	String current_line;
 	Set<Faculty> faculties;
 
@@ -157,10 +137,6 @@ public class Repy implements Parser {
 		}
 
 		faculties.add(parseSportsFaculty());
-	}
-
-	int dayLetterToNumber(Character day_letter) {
-		return (day_letter - 'א');
 	}
 
 	void expect(String s) throws IOException, ParseException {
@@ -216,7 +192,7 @@ public class Repy implements Parser {
 			throw parseError("Invalid course hours-and-points line");
 		}
 
-		course.setPoints(Float.valueOf(reverse(m.group(2))));
+		course.setPoints(Float.valueOf(ParserUtil.reverse(m.group(2))));
 
 		log.fine(String.format("This is a %.1f-point course", course
 				.getPoints()));
@@ -379,8 +355,9 @@ public class Repy implements Parser {
 			day_letter = m.group(1).charAt(0);
 		}
 
-		return new Event(course, dayLetterToNumber(day_letter), parseTime(m
-				.group(3)), parseTime(m.group(2)), place_fix(m.group(4)));
+		return new Event(course, ParserUtil.dayLetterToNumber(day_letter),
+				ParserUtil.parseTime(m.group(3)), ParserUtil.parseTime(m
+						.group(2)), place_fix(m.group(4)));
 	}
 
 	Faculty parseFaculty() throws IOException, ParseException {
@@ -458,7 +435,8 @@ public class Repy implements Parser {
 			throw parseError("Invalid course number-and-name line (SPORTS)");
 		}
 
-		course = new Course(Integer.valueOf(reverse(m.group(1))), m.group(2));
+		course = new Course(Integer.valueOf(ParserUtil.reverse(m.group(1))), m
+				.group(2));
 
 		log.fine(String.format("Parsing sports course %s", course));
 
@@ -467,7 +445,7 @@ public class Repy implements Parser {
 			throw parseError("Invalid course hours-and-points line (SPORTS)");
 		}
 
-		course.setPoints(Float.valueOf(reverse(m.group(2))));
+		course.setPoints(Float.valueOf(ParserUtil.reverse(m.group(2))));
 
 		expect(SportsExpressions.COURSE_SEPARATOR);
 
@@ -576,8 +554,9 @@ public class Repy implements Parser {
 			throw parseError("Invalid sports group event details");
 		}
 
-		Event e = new Event(course, dayLetterToNumber(m.group(1).charAt(0)),
-				parseTime(m.group(2)), parseTime(m.group(3)), m.group(4).trim());
+		Event e = new Event(course, ParserUtil.dayLetterToNumber(m.group(1)
+				.charAt(0)), ParserUtil.parseTime(m.group(2)), ParserUtil
+				.parseTime(m.group(3)), m.group(4).trim());
 
 		log.fine(String.format("Got event %s", e));
 
@@ -613,30 +592,9 @@ public class Repy implements Parser {
 	}
 
 	/**
-	 * @param s
-	 *            Time string in the form HH.MM, 24-hour, HH may be single-digit
-	 *            (MM may not)
-	 * @return Seconds from midnight to s
-	 * @throws ParseException
-	 */
-	int parseTime(String s) throws ParseException {
-		try {
-			String bits[] = reverse(s).split("\\.");
-			if (bits.length != 2) {
-				throw new ParseException("", 0);
-			}
-			int seconds = Integer.valueOf(bits[0]) * 3600
-					+ Integer.valueOf(bits[1]) * 60;
-			return seconds;
-		} catch (Exception e) {
-			throw parseError("Could not parse time", s);
-		}
-	}
-
-	/**
 	 * Places are halfway reversed in REPY: We treat all lines as reversed to
 	 * fix the Hebrew, but then we get reversed numbers.
-	 * 
+	 *
 	 * @param s
 	 *            - A "place" string in the form "PLACE\s+REVERSENUMBER"
 	 * @return "PLACE NUMBER"
@@ -655,7 +613,7 @@ public class Repy implements Parser {
 			try {
 				if (String.valueOf(Integer.valueOf(bits[0])).equals(bits[0])) {
 					// bits[0] is numeric, we need to reverse it
-					sb.append(reverse(bits[0]));
+					sb.append(ParserUtil.reverse(bits[0]));
 				} else {
 					sb.append(bits[0]);
 				}
@@ -679,7 +637,7 @@ public class Repy implements Parser {
 			current_line = null;
 			return null;
 		}
-		current_line = reverse(backwards_line);
+		current_line = ParserUtil.reverse(backwards_line);
 		log.finest(String.format("REPY: %s", current_line));
 		return current_line;
 	}

@@ -7,12 +7,12 @@ import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import javax.management.modelmbean.XMLParseException;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -93,7 +93,7 @@ public class MainWindow extends JFrame {
 					} catch (IOException ex) {
 						// TODO Auto-generated catch block
 						ex.printStackTrace();
-					} catch (XMLParseException ex) {
+					} catch (ParseException ex) {
 						// TODO Auto-generated catch block
 						ex.printStackTrace();
 					}

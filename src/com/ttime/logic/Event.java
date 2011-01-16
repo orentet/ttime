@@ -3,24 +3,21 @@ package com.ttime.logic;
 import java.util.Collection;
 
 public class Event implements Comparable<Event> {
-	Course course;
-
 	int day;
-
 	/**
 	 * Stored as seconds since midnight
 	 */
 	int endTime;
 
+	Group group;
 	String place;
 	/**
 	 * Stored as seconds since midnight
 	 */
 	int startTime;
 
-	public Event(Course course, int day, int startTime, int endTime,
-			String place) {
-		this.course = course;
+	public Event(Group group, int day, int startTime, int endTime, String place) {
+		this.group = group;
 		this.day = day;
 		this.startTime = startTime;
 		this.endTime = endTime;
@@ -53,16 +50,16 @@ public class Event implements Comparable<Event> {
 		}
 	}
 
-	public Course getCourse() {
-		return this.course;
-	}
-
 	public int getDay() {
 		return day;
 	}
 
 	public int getEndTime() {
 		return endTime;
+	}
+
+	public Group getGroup() {
+		return group;
 	}
 
 	public String getPlace() {

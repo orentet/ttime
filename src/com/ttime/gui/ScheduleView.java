@@ -90,7 +90,8 @@ public class ScheduleView extends JComponent {
 
 		y += 5;
 
-		AttributedString attributedTitle = new AttributedString(e.getCourse()
+		AttributedString attributedTitle = new AttributedString(e.getGroup()
+				.getCourse()
 				.toString());
 		attributedTitle.addAttribute(TextAttribute.WEIGHT,
 				TextAttribute.WEIGHT_BOLD);
